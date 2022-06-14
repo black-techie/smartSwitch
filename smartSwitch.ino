@@ -4,6 +4,7 @@ int rly0 = 9;
 int rly1 = 10;
 int rly2 = 11;
 int rly3 = 12;
+
 void setup()
 {
   Serial.begin(115200);
@@ -26,21 +27,18 @@ void setup()
   digitalWrite(rly2, 1);
   digitalWrite(rly3, 1);
 
-  //  delay(8000);
+  delay(8000);
   Serial1.println("AT+CMGF=1");
   delay(1000);
+  sendSMS("System is ready :)","789105606");
 }
 String details = "";
 bool readSMS = false;
 elapsedMillis timer;
 void loop()
 {
-  char dat;
-
-
   while (Serial1.available()) {
-    dat = Serial1.read();
-    details += String(dat);
+    details += (char)Serial1.read();
     if (!readSMS) {
       timer = 0;
       readSMS = !readSMS;
@@ -56,7 +54,13 @@ void loop()
       String message = details.substring(69);
       Serial.println("phone number = " + String(phone));
       Serial.println("message = " + String(message));
-      sendSMS("SMS RECEIVED :" + message + "\nReply :We will check on you soon", phone);
+      if (message == "hello" || message == "Hello" || message == "HELLO" || message == "HI" || message == "Hi" || message == "hi") {
+        sendSMS("Well hello, how are you!", phone);
+      }
+      else {
+        sendSMS("SMS RECEIVED :" + message + "\nReply :This is new, use small caps if you're sure :)", phone);
+      }
+
     }
     readSMS = !readSMS;
     details = "";
@@ -65,7 +69,7 @@ void loop()
 }
 void sendSMS(String sms, String number) {
   delay(700);
-  Serial1.println("AT+CMGS=\"+255" + number + "\""); //change ZZ with country code and xxxxxxxxxxx with phone number to sms
+  Serial1.println("AT+CMGS=\"+255" + number + "\"");
   delay(700);
   Serial1.print(sms); //text content
   delay(700);
